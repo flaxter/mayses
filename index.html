@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="yi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מעשׂהלעך · Mayselekh</title>
+<meta name="description" content="Yiddish stories and poems for little ears — tap a picture to listen.">
+<style>
+  :root{
+    --bg:#fff8ef; --ink:#3d3229; --sub:#8a7d6e; --card:#ffffff;
+    --player-h:96px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{touch-action:manipulation;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",system-ui,sans-serif;
+    padding-bottom:calc(var(--player-h) + env(safe-area-inset-bottom) + 24px);
+  }
+  header{ text-align:center; padding:28px 16px 6px; }
+  h1{ font-size:44px; margin:0; letter-spacing:.5px; }
+  .tagline{ color:var(--sub); font-size:15px; margin:6px 0 14px; }
+  .dice{
+    font-size:26px; border:none; cursor:pointer; margin-top:2px;
+    background:#ffe9b3; border-radius:999px; padding:12px 26px;
+    box-shadow:0 3px 0 #e8c86f; transition:transform .1s;
+  }
+  .dice:active{ transform:translateY(3px); box-shadow:none; }
+  section{ padding:10px 14px 2px; max-width:820px; margin:0 auto; }
+  .sec-head{ display:flex; align-items:baseline; gap:10px; margin:14px 4px 10px; }
+  .sec-emoji{ font-size:30px; }
+  .sec-yid{ font-size:26px; font-weight:700; direction:rtl; }
+  .sec-en{ font-size:13px; color:var(--sub); }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .tile{
+    position:relative; border:none; cursor:pointer; border-radius:26px;
+    background:var(--card); padding:18px 10px 12px; text-align:center;
+    box-shadow:0 2px 6px rgba(80,60,20,.08), inset 0 0 0 3px var(--tint);
+    transition:transform .12s;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    min-height:150px; justify-content:center;
+  }
+  .tile:active{ transform:scale(.94); }
+  .tile .e{ font-size:58px; line-height:1.1; }
+  .tile .t{ font-size:17px; font-weight:650; direction:rtl; unicode-bidi:isolate; }
+  .tile .s{ font-size:11.5px; color:var(--sub); }
+  .tile .min{
+    position:absolute; top:10px; left:12px; font-size:11px; color:var(--sub);
+    background:var(--bg); border-radius:999px; padding:2px 7px;
+  }
+  .tile .num{
+    position:absolute; top:8px; right:12px; font-size:20px; font-weight:800; color:var(--tintDark);
+  }
+  .tile .dot{ position:absolute; bottom:10px; right:14px; font-size:12px; display:none; }
+  .tile.started .dot{ display:block; }
+  .tile.playing{ box-shadow:0 4px 14px rgba(80,60,20,.18), inset 0 0 0 4px var(--tintDark); }
+  .tile.playing .e{ animation:bounce 1s infinite; }
+  @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  .eq{ position:absolute; bottom:10px; left:12px; display:none; gap:2px; align-items:flex-end; height:14px; }
+  .tile.playing .eq{ display:flex; }
+  .eq i{ width:3px; background:var(--tintDark); border-radius:2px; animation:eq .7s infinite ease-in-out; }
+  .eq i:nth-child(2){ animation-delay:.2s } .eq i:nth-child(3){ animation-delay:.4s }
+  @keyframes eq{ 0%,100%{height:4px} 50%{height:14px} }
+
+  #player{
+    position:fixed; left:0; right:0; bottom:0; z-index:10;
+    background:#fffdf7; border-top:1px solid #eadfce;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    display:none; align-items:center; gap:12px;
+  }
+  #player.on{ display:flex; }
+  #p-emoji{ font-size:40px; width:52px; text-align:center; }
+  #p-mid{ flex:1; min-width:0; }
+  #p-title{ font-size:14px; font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #bar{ height:14px; border-radius:7px; background:#eee3d0; margin-top:6px; position:relative; cursor:pointer; }
+  #fill{ height:100%; border-radius:7px; background:#f4a11c; width:0%; transition:width .3s linear; }
+  #p-btns{ display:flex; align-items:center; gap:8px; }
+  .pbtn{ border:none; background:none; cursor:pointer; font-size:22px; padding:4px; color:var(--ink); }
+  #p-play{
+    font-size:30px; width:64px; height:64px; border-radius:50%; border:none; cursor:pointer;
+    background:#f4a11c; color:#fff; box-shadow:0 3px 0 #c77f0e;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #p-play:active{ transform:translateY(2px); box-shadow:none; }
+  #speed{ font-size:13px; font-weight:700; color:var(--sub); border:1.5px solid #e0d4c0; border-radius:999px; background:none; padding:3px 8px; cursor:pointer; }
+  details.grownups{ max-width:820px; margin:34px auto 8px; padding:0 18px; color:var(--sub); font-size:14px; }
+  details.grownups summary{ cursor:pointer; font-weight:650; }
+  details.grownups a{ color:#b06e10; }
+  details.grownups li{ margin:6px 0; }
+  @media (max-width:420px){
+    .grid{ grid-template-columns:repeat(2,1fr); }
+    h1{ font-size:38px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>מעשׂהלעך</h1>
+  <div class="tagline">Yiddish stories for little ears · tap a picture to listen&nbsp;🎧</div>
+  <button class="dice" id="dice" aria-label="Play a surprise story">🎲 a surprise!</button>
+</header>
+<main id="main"></main>
+
+<details class="grownups">
+  <summary>For grown-ups · פֿאַר די גרויסע</summary>
+  <p>Everything here streams from free public archives — nothing is hosted on this site.</p>
+  <ul>
+    <li><b>Bobe-mayses</b> — folktales read by Ruth Rubin (c. 1960), from the
+      <a href="https://ruthrubin.yivo.org/">Ruth Rubin Legacy Archive</a> at YIVO. Sourced from Y.&nbsp;L. Cahan's <i>Folks-mayses</i>.</li>
+    <li><b>Everything else</b> — the <a href="https://www.yiddishbookcenter.org/collections/yiddish-audiobooks">Sami Rohr Library of Recorded Yiddish Books</a>:
+      native Yiddish speakers recorded at the Jewish Public Library of Montreal in the 1980s–90s, digitized by the Yiddish Book Center,
+      streamed from the <a href="https://archive.org/details/nationalyiddishbookcenteraudio">Internet Archive</a>.</li>
+    <li><b>More listening &amp; watching</b> — Swedish public broadcaster UR makes children's programs <i>in Yiddish</i>
+      (works outside Sweden): <a href="https://urplay.se/bladdra/jiddisch">all Yiddish programs on UR Play</a>,
+      incl. <a href="https://urplay.se/serie/239098-lasa-med-jiddisch">Läsa med – jiddisch</a> (read-along with highlighted text) and
+      the audio picture-book series <i>Småsagor – jiddisch</i>.</li>
+    <li>The player remembers where you stopped in each story. Motl's chapters play one after the next, like a real audiobook.</li>
+  </ul>
+</details>
+
+<div id="player">
+  <div id="p-emoji">🎧</div>
+  <div id="p-mid">
+    <div id="p-title"></div>
+    <div id="bar"><div id="fill"></div></div>
+  </div>
+  <div id="p-btns">
+    <button class="pbtn" id="back15" aria-label="Back 15 seconds">↺</button>
+    <button id="p-play" aria-label="Play or pause">▶</button>
+    <button class="pbtn" id="fwd15" aria-label="Forward 15 seconds">↻</button>
+    <button id="speed">1×</button>
+  </div>
+</div>
+<audio id="audio" preload="none"></audio>
+
+<script>
+const DATA = [{"key": "bobe", "emoji": "🧚", "yid": "באָבע־מעשׂיות", "en": "Bobe-mayses · told by Ruth Rubin", "color": "#7c5cff", "items": [{"e": "🥾", "t": "דער רופֿא און דער שוסטער", "s": "The Healer and the Cobbler", "url": "https://exhibitions.yivo.org/files/original/a2d26fc49f8edfbe8e817502cfdf13e6.mp3", "min": null}, {"e": "👵", "t": "אַ מעשׂהלע מיט אַ באָבעצקע", "s": "A granny with lots of little ones", "url": "https://exhibitions.yivo.org/files/original/4af5477a3fafa66b60eee5687cc70258.mp3", "min": null}, {"e": "🪙", "t": "אַן אָרעמאַן און אַ רײַכער ברודער", "s": "A poor brother and a rich brother", "url": "https://exhibitions.yivo.org/files/original/19f683b13df750f2547fe0aaf2c4f32e.mp3", "min": null}, {"e": "🐐", "t": "אַ באָביצקעלע מיט חיהלעך", "s": "A granny with little animals", "url": "https://exhibitions.yivo.org/files/original/630ae8ae810b963714b042ab5eb0fa8e.mp3", "min": null}, {"e": "👶", "t": "בעבעלע", "s": "A Yiddish Tom Thumb", "url": "https://exhibitions.yivo.org/files/original/9233e5c10a90e2538b444d0cd2cf396a.mp3", "min": null}, {"e": "🌲", "t": "אַ ווילדער מאַן", "s": "Once there was a wild man", "url": "https://exhibitions.yivo.org/files/original/f8a5662e21704e6a0fc24394eba0066f.mp3", "min": null}, {"e": "🏡", "t": "אַ דיעד מיט אַ באַבע", "s": "Once there was an old man and old woman", "url": "https://exhibitions.yivo.org/files/original/db63743c1358bf4c0f2029e9e56c2e11.mp3", "min": null}]}, {"key": "peretz", "emoji": "✨", "yid": "וווּנדער־מעשׂיות", "en": "Wonder tales · I. L. Peretz", "color": "#0aa58b", "items": [{"e": "🎩", "t": "דער קונצן־מאַכער", "s": "The Magician", "url": "https://archive.org/download/276I.L.PeretzBaymGusTsukopnsAtTheCastOfTheHeadboard.ReadByLeibTencer_201312/276%20I.L.%20Peretz%2C%20%22Der%20kuntsn-makher%20%28The%20Magician%29.%22%20Read%20by%20Sara%20Dresher.mp3", "min": 15}, {"e": "💰", "t": "דער אוצר", "s": "The Treasure", "url": "https://archive.org/download/276I.L.PeretzBaymGusTsukopnsAtTheCastOfTheHeadboard.ReadByLeibTencer_201312/276%20I.L.%20Peretz%2C%20%22Der%20oytser%20%28The%20Treasure%29.%22%20Read%20by%20Leib%20Tencer.mp3", "min": 13}, {"e": "⛵", "t": "נסים אויפֿן ים", "s": "Miracles at Sea", "url": "https://archive.org/download/276I.L.PeretzBaymGusTsukopnsAtTheCastOfTheHeadboard.ReadByLeibTencer_201312/276%20I.L.%20Peretz%2C%20%22Nisim%20oyfn%20yam%20%28Miracles%20at%20Sea%29.%22%20Read%20by%20Leib%20Tencer.mp3", "min": 21}, {"e": "👑", "t": "מאָטל פּרינץ", "s": "Motl the Prince", "url": "https://archive.org/download/276I.L.PeretzBaymGusTsukopnsAtTheCastOfTheHeadboard.ReadByLeibTencer_201312/276%20I.L.%20Peretz%2C%20%22Motl%20prints%20%28Motl%20the%20Prince%29.%22%20Read%20by%20Leib%20Tencer.mp3", "min": 14}, {"e": "🌞", "t": "ס׳איז גוט", "s": "It's Good", "url": "https://archive.org/download/276I.L.PeretzBaymGusTsukopnsAtTheCastOfTheHeadboard.ReadByLeibTencer_201312/276%20I.L.%20Peretz%2C%20%22S%27iz%20gut%20%28It%27s%20Good%29.%22%20Read%20by%20Leib%20Tencer.mp3", "min": 15}, {"e": "🗝️", "t": "די ירושה", "s": "The Inheritance", "url": "https://archive.org/download/276I.L.PeretzBaymGusTsukopnsAtTheCastOfTheHeadboard.ReadByLeibTencer_201312/276%20I.L.%20Peretz%2C%20%22Di%20yerushe%20%28The%20Inheritance%29.%22%20Read%20by%20Leib%20Tencer.mp3", "min": 8}]}, {"key": "sa", "emoji": "😄", "yid": "שלום־עליכם", "en": "Funny stories · Sholem Aleichem", "color": "#e8590c", "items": [{"e": "😂", "t": "לאַכן איז געזונט", "s": "Laughing is Healthy", "url": "https://archive.org/download/LakhnIzGezunt-SholemAleichem/NYBCAudio-LakhnIzGezuntSholemAleichem893.mp3", "min": 3}, {"e": "🕎", "t": "חנוכּה־געלט", "s": "Hanukkah Gelt", "url": "https://archive.org/download/253SholemAleichemAnEytseAPieceOfAdvice.ReadByDavidRogow/253%20Sholem%20Aleichem%2C%20%22Khanike-gelt%20%28Hanukkah%20Gelt%29.%22%20Read%20by%20Rita%20Karin.mp3", "min": 16}, {"e": "🍎", "t": "לשנה־טובֿה", "s": "A Good New Year", "url": "https://archive.org/download/252SholemAleichemAVortFarAVortTitForTat.ReadByMalcaSussmanHubner/252%20Sholem%20Aleichem%2C%20%22Leshone%20toyve%20%28A%20Good%20Year%29.%22%20Read%20by%20Malca%20Sussman%20Hubner.mp3", "min": 30}, {"e": "🌸", "t": "פֿון פּסח ביז סוכּות", "s": "From Passover to Sukkot", "url": "https://archive.org/download/252SholemAleichemAVortFarAVortTitForTat.ReadByMalcaSussmanHubner/252%20Sholem%20Aleichem%2C%20%22Fun%20Peysakh%20biz%20Sukes%20%28From%20Passover%20until%20Sukkot%29.%22%20Read%20by%20Malca%20Sussman%20Hubner.mp3", "min": 28}, {"e": "🧀", "t": "מילכיקס", "s": "Dairy", "url": "https://archive.org/download/253SholemAleichemAnEytseAPieceOfAdvice.ReadByDavidRogow/253%20Sholem%20Aleichem%2C%20%22Milkhiks%20%28Dairy%29.%22%20Read%20by%20David%20Rogow.mp3", "min": 16}]}, {"key": "olitsky", "emoji": "🐻", "yid": "דערציילונגען", "en": "Stories · Leib Olitsky", "color": "#3b82d6", "items": [{"e": "🏆", "t": "ווער האָט געוווּנען דעם פֿאַרמעסט?", "s": "Who Won the Contest?", "url": "https://archive.org/download/66LeibOlitskyWhoWonTheContestVoveVaynshteyn/66%20Leib%20Olitsky%20Who%20Won%20the%20Contest%20Vove%20Vaynshteyn.mp3", "min": 17}, {"e": "☀️", "t": "אין הייסע זומערטעג", "s": "On Hot Summer Days", "url": "https://archive.org/download/20LeibOlitskyOnHotSummerDaysVoveVaynshteyn/20%20Leib%20Olitsky%20On%20Hot%20Summer%20Days%20Vove%20Vaynshteyn.mp3", "min": 42}, {"e": "🐓", "t": "אין אַ זונטיקדיקן פֿרימאָרגן", "s": "On a Sunday Morning", "url": "https://archive.org/download/22LeibOlitskyOnASundayMorningVoveVaynshteyn/22%20Leib%20Olitsky%20On%20a%20Sunday%20Morning%20Vove%20Vaynshteyn.mp3", "min": 29}, {"e": "🤝", "t": "חבֿרשאַפֿט און ליבשאַפֿט", "s": "Friendship and Love", "url": "https://archive.org/download/21LeibOlitskyFriendshipAndLoveVoveVaynshteynmp3/21%20Leib%20Olitsky%20Friendship%20and%20Love%20Vove%20Vaynshteynmp3.mp3", "min": 30}, {"e": "🧸", "t": "אַ טרייסט", "s": "A Comfort", "url": "https://archive.org/download/25LeibOlitskyAComfortVoveVaynshteyn/25%20Leib%20Olitsky%20A%20Comfort%20Vove%20Vaynshteyn.mp3", "min": 20}, {"e": "🌙", "t": "ערבֿ", "s": "Evening", "url": "https://archive.org/download/65LeibOlitskyEveningVoveVaynshteyn/65%20Leib%20Olitsky%20Evening%20Vove%20Vaynshteyn.mp3", "min": 32}]}, {"key": "poems", "emoji": "🌷", "yid": "לידעלעך", "en": "Little poems · Bialik, read by Leib Rubinov", "color": "#d6336c", "items": [{"e": "🌻", "t": "מײַן גאָרטן", "s": "My Garden", "url": "https://archive.org/download/186HayyimNahmanBialikMyGardenLeibRubinov/186%20Hayyim%20Nahman%20Bialik%20My%20Garden%20Leib%20Rubinov.mp3", "min": 12}, {"e": "🐦", "t": "צום פֿויגל", "s": "To the Bird", "url": "https://archive.org/download/191HayyimNahmanBialikToTheBirdReadByLeibRubinov/191%20Hayyim%20Nahman%20Bialik%20To%20the%20Bird%20Read%20by%20Leib%20Rubinov.mp3", "min": 7}, {"e": "🌾", "t": "אין פֿעלד", "s": "In the Field", "url": "https://archive.org/download/183HayyimNahmanBialikInTheFieldReadByLeibRubinov/183%20Hayyim%20Nahman%20Bialik%20In%20The%20Field%20Read%20by%20Leib%20Rubinov.mp3", "min": 8}, {"e": "🌱", "t": "ערבֿ פֿרילינג", "s": "On the Eve of Spring", "url": "https://archive.org/download/177HayyimNahmanBialikOnTheEveOfSpringReadByLeibRubinov/177%20Hayyim%20Nahman%20Bialik%20On%20the%20Eve%20of%20Spring%20Read%20by%20Leib%20Rubinov.mp3", "min": 7}, {"e": "🌷", "t": "פֿרילינגס־לידער", "s": "Songs of Spring", "url": "https://archive.org/download/171HayyimNahmanBialikSongsOfSpringLeibRubinov/171%20Hayyim%20Nahman%20Bialik%20Songs%20of%20Spring%20Leib%20Rubinov.mp3", "min": 6}, {"e": "🍃", "t": "אונטער די גרינע ביימעלעך", "s": "Under the Green Leaves", "url": "https://archive.org/download/199HayyimNahmanBialikUnderTheGreenLeavesReadByLeibRubinov/199%20Hayyim%20Nahman%20Bialik%20Under%20the%20Green%20Leaves%20Read%20by%20Leib%20Rubinov.mp3", "min": 4}, {"e": "🌞", "t": "זומער־ליד", "s": "Song of Midsummer", "url": "https://archive.org/download/197HayyimNahmanBialikSongOfMidsummerReadByLeibRubinov/197%20Hayyim%20Nahman%20Bialik%20Song%20of%20Midsummer%20Read%20by%20Leib%20Rubinov.mp3", "min": 6}, {"e": "🍂", "t": "אין האַרבסט", "s": "In the Fall", "url": "https://archive.org/download/184HayyimNahmanBialikInTheFallReadByLeibRubinov/184%20Hayyim%20Nahman%20Bialik%20In%20the%20Fall%20Read%20by%20Leib%20Rubinov.mp3", "min": 7}, {"e": "🎈", "t": "פֿרייד", "s": "Joy", "url": "https://archive.org/download/172HayyimNahmanBialikJoyReadByLeibRubinov/172%20Hayyim%20Nahman%20Bialik%20Joy%20Read%20by%20Leib%20Rubinov.mp3", "min": 7}, {"e": "🍄", "t": "קליינע מענטשעלעך", "s": "Dwarves", "url": "https://archive.org/download/198HayyimNahmanBialikDwarvesReadByLeibRubinov/198%20Hayyim%20Nahman%20Bialik%20Dwarves%20Read%20by%20Leib%20Rubinov.mp3", "min": 7}, {"e": "👸", "t": "די פּרינצעסין שבת", "s": "The Sabbath Princess · Heine", "url": "https://archive.org/download/201HeinrichHeineTheSabbathPrincessTranslationHayyimNahmanBialikReadByLeibRubinov/201%20Heinrich%20Heine%20The%20Sabbath%20Princess%20Translation%20Hayyim%20Nahman%20Bialik%20Read%20by%20Leib%20Rubinov.mp3", "min": 9}]}, {"key": "motl", "emoji": "🚂", "yid": "מאָטל פּייסי דעם חזנס", "en": "Motl the Cantor's Son · a whole book, read by Leib Rubinov", "color": "#9333ea", "items": [{"e": "🚂", "t": "קאַפּיטל 1", "s": "Chapter 1 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%201%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 83, "num": 1}, {"e": "🚃", "t": "קאַפּיטל 2", "s": "Chapter 2 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%202%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 81, "num": 2}, {"e": "🚃", "t": "קאַפּיטל 3", "s": "Chapter 3 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%203%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 82, "num": 3}, {"e": "🚃", "t": "קאַפּיטל 4", "s": "Chapter 4 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%204%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 83, "num": 4}, {"e": "🚃", "t": "קאַפּיטל 5", "s": "Chapter 5 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%205%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 83, "num": 5}, {"e": "🚃", "t": "קאַפּיטל 6", "s": "Chapter 6 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%206%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 83, "num": 6}, {"e": "🚃", "t": "קאַפּיטל 7", "s": "Chapter 7 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%207%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 83, "num": 7}, {"e": "🚃", "t": "קאַפּיטל 8", "s": "Chapter 8 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%208%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 83, "num": 8}, {"e": "🚋", "t": "קאַפּיטל 9", "s": "Chapter 9 of 9", "url": "https://archive.org/download/250SholemAleichemMotlPeysiDemKhaznsMotlTheCantorsSon.CD1Of9.ReadByLeibRubinov/250%20Sholem%20Aleichem%2C%20%22Motl%20peysi%20dem%20khazns%20%28Motl%2C%20the%20Cantor%27s%20Son%29.%22%20CD%209%20of%209.%20Read%20by%20Leib%20Rubinov.mp3", "min": 45, "num": 9}], "chain": true}];
+
+const tiles = [];           // flat list {sec, item, el, idx}
+const main = document.getElementById('main');
+DATA.forEach((sec, si) => {
+  const s = document.createElement('section');
+  s.innerHTML = `<div class="sec-head"><span class="sec-emoji">${sec.emoji}</span>
+    <span class="sec-yid">${sec.yid}</span><span class="sec-en">${sec.en}</span></div>`;
+  const g = document.createElement('div'); g.className = 'grid';
+  sec.items.forEach(item => {
+    const b = document.createElement('button');
+    b.className = 'tile';
+    b.style.setProperty('--tint', sec.color + '22');
+    b.style.setProperty('--tintDark', sec.color);
+    b.innerHTML = `${item.min ? `<span class="min">${item.min} min</span>` : ''}
+      ${item.num ? `<span class="num">${item.num}</span>` : ''}
+      <span class="e">${item.e}</span><span class="t">${item.t}</span><span class="s">${item.s}</span>
+      <span class="eq"><i></i><i></i><i></i></span><span class="dot">⏸️</span>`;
+    const idx = tiles.length;
+    b.addEventListener('click', () => toggle(idx));
+    if (localStorage.getItem('pos:' + item.url) > 20) b.classList.add('started');
+    g.appendChild(b);
+    tiles.push({ sec, item, el: b, idx });
+  });
+  s.appendChild(g);
+  main.appendChild(s);
+});
+
+const audio = document.getElementById('audio');
+const player = document.getElementById('player');
+const pPlay = document.getElementById('p-play');
+const pEmoji = document.getElementById('p-emoji');
+const pTitle = document.getElementById('p-title');
+const fill = document.getElementById('fill');
+const bar = document.getElementById('bar');
+let cur = -1;
+const SPEEDS = [1, 1.25, 1.5, 0.75];
+let spd = 0;
+
+function toggle(idx) {
+  if (idx === cur) { audio.paused ? audio.play() : audio.pause(); return; }
+  play(idx);
+}
+
+function play(idx) {
+  if (cur >= 0) tiles[cur].el.classList.remove('playing');
+  cur = idx;
+  const { sec, item, el } = tiles[idx];
+  el.classList.add('playing');
+  audio.src = item.url;
+  const saved = parseFloat(localStorage.getItem('pos:' + item.url) || 0);
+  if (saved > 20) audio.currentTime = saved;
+  audio.playbackRate = SPEEDS[spd];
+  audio.play();
+  player.classList.add('on');
+  pEmoji.textContent = item.e;
+  pTitle.textContent = item.t + ' · ' + item.s;
+  localStorage.setItem('last', idx);
+  setMediaSession(item, sec);
+}
+
+function setMediaSession(item, sec) {
+  if (!('mediaSession' in navigator)) return;
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d');
+  x.fillStyle = sec.color; x.fillRect(0, 0, 256, 256);
+  x.font = '150px serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(item.e, 128, 140);
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: item.t, artist: item.s, album: 'מעשׂהלעך',
+    artwork: [{ src: c.toDataURL(), sizes: '256x256', type: 'image/png' }]
+  });
+  navigator.mediaSession.setActionHandler('play', () => audio.play());
+  navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+  navigator.mediaSession.setActionHandler('seekbackward', () => audio.currentTime -= 15);
+  navigator.mediaSession.setActionHandler('seekforward', () => audio.currentTime += 15);
+}
+
+audio.addEventListener('play', () => { pPlay.textContent = '⏸'; if (cur>=0) tiles[cur].el.classList.add('playing'); });
+audio.addEventListener('pause', () => { pPlay.textContent = '▶'; });
+audio.addEventListener('timeupdate', () => {
+  if (!audio.duration) return;
+  fill.style.width = (100 * audio.currentTime / audio.duration) + '%';
+  if (cur >= 0) localStorage.setItem('pos:' + tiles[cur].item.url, audio.currentTime);
+});
+audio.addEventListener('ended', () => {
+  if (cur < 0) return;
+  localStorage.removeItem('pos:' + tiles[cur].item.url);
+  tiles[cur].el.classList.remove('playing','started');
+  // auto-advance within a chained section (Motl)
+  const { sec } = tiles[cur];
+  const next = tiles[cur + 1];
+  if (sec.chain && next && next.sec === sec) {
+    play(cur + 1);
+    next.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else { cur = -1; player.classList.remove('on'); }
+});
+
+pPlay.addEventListener('click', () => { audio.paused ? audio.play() : audio.pause(); });
+document.getElementById('back15').addEventListener('click', () => audio.currentTime -= 15);
+document.getElementById('fwd15').addEventListener('click', () => audio.currentTime += 15);
+document.getElementById('speed').addEventListener('click', (e) => {
+  spd = (spd + 1) % SPEEDS.length;
+  audio.playbackRate = SPEEDS[spd];
+  e.target.textContent = SPEEDS[spd] + '×';
+});
+bar.addEventListener('click', (e) => {
+  if (!audio.duration) return;
+  const r = bar.getBoundingClientRect();
+  audio.currentTime = audio.duration * (e.clientX - r.left) / r.width;
+});
+document.getElementById('dice').addEventListener('click', () => {
+  const pool = tiles.filter(t => !t.sec.chain);
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  play(pick.idx);
+  pick.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+</script>
+</body>
+</html>
