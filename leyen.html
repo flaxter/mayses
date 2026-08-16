@@ -87,6 +87,7 @@
     <div id="bar"><div id="fill"></div></div>
   </div>
   <div id="p-btns">
+    <button class="pbtn" id="restart" aria-label="From the beginning">⏮</button>
     <button class="pbtn" id="back15" aria-label="Back 15 seconds">↺</button>
     <button id="p-play" aria-label="Play or pause">▶</button>
     <button class="pbtn" id="fwd15" aria-label="Forward 15 seconds">↻</button>
@@ -145,7 +146,7 @@ function tap(idx){
   tiles[idx].el.classList.add('playing');
   audio.src=item.url;
   const saved=parseFloat(localStorage.getItem('pos:'+item.url)||0);
-  const start=saved>20?saved:(item.skip||0);
+  const start=(item.min>=30&&saved>20)?saved:(item.skip||0);
   if(start>0) audio.currentTime=start;
   audio.play();
   player.classList.add('on');
@@ -173,6 +174,9 @@ audio.addEventListener('ended',()=>{
 });
 pPlay.addEventListener('click',()=>{ audio.paused?audio.play():audio.pause(); });
 document.getElementById('back15').addEventListener('click',()=>audio.currentTime-=15);
+document.getElementById('restart').addEventListener('click',()=>{
+  if(cur>=0) audio.currentTime=tiles[cur].item.skip||0;
+});
 document.getElementById('fwd15').addEventListener('click',()=>audio.currentTime+=15);
 bar.addEventListener('click',e=>{
   if(!audio.duration) return;
