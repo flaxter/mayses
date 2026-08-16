@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="yi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>לאַכן איז געזונט</title>
+<meta name="description" content="Yiddish humor for children — picture books, Chelm, Hershele, and jokes to hear.">
+<style>
+  :root{ --bg:#fff8ef; --ink:#3d3229; --sub:#8a7d6e; --card:#ffffff; --player-h:96px; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{touch-action:manipulation;}
+  body{ margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",system-ui,sans-serif;
+    padding-bottom:calc(var(--player-h) + env(safe-area-inset-bottom) + 24px); }
+  header{ text-align:center; padding:26px 16px 4px; }
+  h1{ font-size:42px; margin:0; }
+  .tagline{ color:var(--sub); font-size:15px; margin:6px 0 10px; }
+  .backlink{ display:inline-block; margin-top:4px; color:#b06e10; font-weight:650; text-decoration:none;
+    background:#ffe9b3; border-radius:999px; padding:9px 20px; box-shadow:0 3px 0 #e8c86f; }
+  section{ padding:10px 14px 2px; max-width:820px; margin:0 auto; direction:rtl; }
+  .sec-head{ display:flex; align-items:baseline; gap:10px; margin:14px 4px 10px; }
+  .sec-emoji{ font-size:30px; }
+  .sec-yid{ font-size:26px; font-weight:700; direction:rtl; }
+  .sec-en{ font-size:13px; color:var(--sub); direction:ltr; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .tile{ position:relative; border:none; cursor:pointer; border-radius:26px; background:var(--card);
+    padding:14px 10px 12px; text-align:center;
+    box-shadow:0 2px 6px rgba(80,60,20,.08), inset 0 0 0 3px var(--tint);
+    transition:transform .12s; display:flex; flex-direction:column; align-items:center; gap:6px;
+    min-height:150px; justify-content:flex-start; }
+  .tile:active{ transform:scale(.94); }
+  .tile img.cover{ width:86px; height:112px; object-fit:cover; border-radius:8px;
+    box-shadow:0 2px 6px rgba(0,0,0,.25); background:#eee; }
+  .tile .e{ font-size:52px; line-height:1.1; }
+  .tile .badge{ position:absolute; top:8px; left:10px; font-size:24px; }
+  .tile .t{ font-size:17px; font-weight:650; direction:rtl; unicode-bidi:isolate; }
+  .tile .t.lt{ direction:ltr; font-size:15px; }
+  .tile .s{ font-size:11.5px; color:var(--sub); direction:ltr; }
+  .tile .min{ position:absolute; top:10px; right:12px; font-size:11px; color:var(--sub);
+    background:var(--bg); border-radius:999px; padding:2px 7px; direction:ltr; }
+  .tile .gnote{ position:absolute; bottom:8px; left:12px; font-size:14px; }
+  .tile.playing{ box-shadow:0 4px 14px rgba(80,60,20,.18), inset 0 0 0 4px var(--tintDark); }
+  .tile.playing .e{ animation:bounce 1s infinite; }
+  @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  #bwrap{ position:fixed; inset:0; z-index:40; background:rgba(20,12,4,.96); display:none; }
+  #bwrap.on{ display:block; }
+  #bframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .ovbtn{ position:absolute; z-index:41; font-size:22px; width:52px; height:52px; border-radius:50%;
+    border:none; cursor:pointer; background:#fff; color:#333; box-shadow:0 2px 8px rgba(0,0,0,.4); }
+  #bclose{ top:calc(10px + env(safe-area-inset-top)); right:14px; }
+  #bout{ top:calc(10px + env(safe-area-inset-top)); right:76px; font-size:17px; text-decoration:none;
+    display:flex; align-items:center; justify-content:center; }
+  #player{ position:fixed; left:0; right:0; bottom:0; z-index:10; background:#fffdf7;
+    border-top:1px solid #eadfce; padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    display:none; align-items:center; gap:12px; }
+  #player.on{ display:flex; }
+  #p-emoji{ font-size:40px; width:52px; text-align:center; }
+  #p-mid{ flex:1; min-width:0; }
+  #p-title{ font-size:14px; font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #bar{ height:14px; border-radius:7px; background:#eee3d0; margin-top:6px; position:relative; cursor:pointer; }
+  #fill{ height:100%; border-radius:7px; background:#f4a11c; width:0%; transition:width .3s linear; }
+  #p-play{ font-size:30px; width:64px; height:64px; border-radius:50%; border:none; cursor:pointer;
+    background:#f4a11c; color:#fff; box-shadow:0 3px 0 #c77f0e;
+    display:flex; align-items:center; justify-content:center; }
+  #p-play:active{ transform:translateY(2px); box-shadow:none; }
+  @media (max-width:420px){ .grid{ grid-template-columns:repeat(2,1fr); } h1{ font-size:36px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>😂 לאַכן איז געזונט</h1>
+  <div class="tagline">Yiddish humor for children · tap a book to read it, or a story to hear it</div>
+  <a class="backlink" href="index.html">→ צוריק צו די מעשׂהלעך</a>
+</header>
+<main id="main"></main>
+
+<div id="bwrap">
+  <button class="ovbtn" id="bclose" aria-label="Close book">✕</button>
+  <a class="ovbtn" id="bout" href="#" target="_blank" rel="noopener" aria-label="Open on archive.org">↗</a>
+  <iframe id="bframe" allowfullscreen></iframe>
+</div>
+
+<div id="player">
+  <div id="p-emoji">🎧</div>
+  <div id="p-mid">
+    <div id="p-title"></div>
+    <div id="bar"><div id="fill"></div></div>
+  </div>
+  <button id="p-play" aria-label="Play or pause">▶</button>
+</div>
+<audio id="audio" preload="none"></audio>
+
+<script>
+const DATA = [{"emoji": "🖍️", "yid": "בילדער־ביכלעך", "en": "Picture-books in verse · Wilhelm Busch & Der Tunkeler · Yiddish Book Center", "color": "#f08c00", "items": [{"e": "👦", "t": "דער שטיפֿער מוישל", "s": "Mischievous Moyshl (Max & Moritz style)", "ia": "nybc212975", "note": null}, {"e": "🪁", "t": "די פּאַפּירענע שלאַנג", "s": "The paper kite", "ia": "nybc212973", "note": null}, {"e": "🪺", "t": "דער ראָבן־נעסט", "s": "The ravens' nest", "ia": "nybc212974", "note": null}, {"e": "🐴", "t": "דאָס פֿערד און די מאַלפּעס", "s": "The horse and the monkeys", "ia": "nybc213039", "note": null}, {"e": "🐻", "t": "דער פּורים־בער", "s": "The Purim bear", "ia": "nybc213040", "note": null}]}, {"emoji": "🌝", "yid": "די חכמים פֿון כעלם", "en": "The wise fools of Chelm · Yiddish Book Center", "color": "#1098ad", "items": [{"e": "🦸", "t": "די העלדן פֿון כעלם", "s": "The Heroes of Chelm · Solomon Simon", "ia": "nybc210872", "note": null}, {"e": "🐟", "t": "כעלמער נאַראָנים", "s": "Chelm fools: collected tales", "ia": "nybc208597", "note": null}, {"e": "🎓", "t": "כעלעמער חכמים", "s": "Chelm sages · Y. Y. Trunk", "ia": "khelemerhakhom00trun", "note": null}, {"e": "🍜", "t": "יאָסל לאָקש פֿון כעלם", "s": "Yosl Noodle of Chelm · Jacob Glatstein", "ia": "nybc213011", "note": null}, {"e": "🌍", "t": "חכמים, עקשנים און נאַראָנים", "s": "Wise men, stubborn men and fools of all peoples · Simon", "ia": "nybc213241", "note": null}]}, {"emoji": "😜", "yid": "הערשעלע אָסטראָפּאָליער", "en": "Hershele Ostropoler, the trickster · Yiddish Book Center", "color": "#9c36b5", "items": [{"e": "🃏", "t": "מעשׂהלעך וועגן הערשעלע", "s": "Little stories about Hershele — children's edition", "ia": "nybc212927", "note": null}, {"e": "🎒", "t": "הערשעלעס לערן־יאָרן", "s": "Hershele's school years · Y. Y. Trunk", "ia": "nybc207971", "note": null}, {"e": "😂", "t": "הערשעלע און מאָטקע חב״ד", "s": "Their anekdotes & jokes — older collection, read together", "ia": "nybc201076", "note": "grownup"}]}, {"emoji": "🎧", "yid": "צום צוהערן", "en": "Funny stories to hear · from the main page player", "color": "#e03131", "items": [{"e": "😂", "t": "לאַכן איז געזונט", "s": "Laughing is Healthy", "url": "https://archive.org/download/LakhnIzGezunt-SholemAleichem/NYBCAudio-LakhnIzGezuntSholemAleichem893.mp3", "skip": 0, "min": 3}, {"e": "🕎", "t": "חנוכּה־געלט", "s": "Hanukkah Gelt", "url": "https://archive.org/download/253SholemAleichemAnEytseAPieceOfAdvice.ReadByDavidRogow/253%20Sholem%20Aleichem%2C%20%22Khanike-gelt%20%28Hanukkah%20Gelt%29.%22%20Read%20by%20Rita%20Karin.mp3", "skip": 123.6, "min": 16}, {"e": "🍎", "t": "לשנה־טובֿה", "s": "A Good New Year", "url": "https://archive.org/download/252SholemAleichemAVortFarAVortTitForTat.ReadByMalcaSussmanHubner/252%20Sholem%20Aleichem%2C%20%22Leshone%20toyve%20%28A%20Good%20Year%29.%22%20Read%20by%20Malca%20Sussman%20Hubner.mp3", "skip": 103.8, "min": 30}, {"e": "🏆", "t": "ווער האָט געוווּנען דעם פֿאַרמעסט?", "s": "Who Won the Contest?", "url": "https://archive.org/download/66LeibOlitskyWhoWonTheContestVoveVaynshteyn/66%20Leib%20Olitsky%20Who%20Won%20the%20Contest%20Vove%20Vaynshteyn.mp3", "skip": 100.1, "min": 17}]}, {"emoji": "📚", "yid": "פֿאַר די גרויסע", "en": "For the grown-up: the classic joke collections, to retell at the table", "color": "#364fc7", "items": [{"e": "📕", "t": "ייִדישע וויצן א", "s": "Ravnitski's Yidishe vitsn, vol. 1 — THE joke collection", "ia": "nybc200848", "note": "grownup"}, {"e": "📗", "t": "ייִדישע וויצן ב", "s": "Ravnitski, vol. 2", "ia": "nybc200849", "note": "grownup"}, {"e": "🍊", "t": "Röyte pomerantsen", "s": "Folk jokes in Latin letters — no alef-beys needed", "ia": "nybc213577", "note": "grownup"}, {"e": "🎭", "t": "איך לאַך פֿון אײַך", "s": "Der Tunkeler's humoresques", "ia": "nybc207849", "note": "grownup"}]}];
+const main=document.getElementById('main');
+const tiles=[];
+DATA.forEach(sec=>{
+  const s=document.createElement('section');
+  s.innerHTML=`<div class="sec-head"><span class="sec-emoji">${sec.emoji}</span>
+    <span class="sec-yid">${sec.yid}</span><span class="sec-en">${sec.en}</span></div>`;
+  const g=document.createElement('div'); g.className='grid';
+  sec.items.forEach(item=>{
+    const b=document.createElement('button');
+    b.className='tile';
+    b.style.setProperty('--tint',sec.color+'22');
+    b.style.setProperty('--tintDark',sec.color);
+    if(item.ia){
+      b.innerHTML=`<img class="cover" loading="lazy" alt="" src="https://archive.org/services/img/${item.ia}"
+        onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'e',textContent:'${item.e}'}))">
+        <span class="badge">${item.e}</span>
+        <span class="t${/^[A-Za-z]/.test(item.t)?' lt':''}">${item.t}</span><span class="s">${item.s}</span>
+        ${item.note==='grownup'?'<span class="gnote" title="best with a grown-up">👨‍👧</span>':''}`;
+    } else {
+      b.innerHTML=`${item.min?`<span class="min">${item.min} min</span>`:''}
+        <span class="e">${item.e}</span><span class="t">${item.t}</span><span class="s">${item.s}</span>`;
+    }
+    const idx=tiles.length;
+    b.addEventListener('click',()=>tap(idx));
+    g.appendChild(b);
+    tiles.push({sec,item,el:b});
+  });
+  s.appendChild(g);
+  main.appendChild(s);
+});
+
+const bwrap=document.getElementById('bwrap'), bframe=document.getElementById('bframe'), bout=document.getElementById('bout');
+const audio=document.getElementById('audio'), player=document.getElementById('player');
+const pPlay=document.getElementById('p-play'), pEmoji=document.getElementById('p-emoji'),
+      pTitle=document.getElementById('p-title'), fill=document.getElementById('fill'), bar=document.getElementById('bar');
+let cur=-1;
+
+function tap(idx){
+  const {item}=tiles[idx];
+  if(item.ia){
+    bframe.src=`https://archive.org/embed/${item.ia}`;
+    bout.href=`https://archive.org/details/${item.ia}`;
+    bwrap.classList.add('on');
+    return;
+  }
+  if(idx===cur){ audio.paused?audio.play():audio.pause(); return; }
+  if(cur>=0) tiles[cur].el.classList.remove('playing');
+  cur=idx;
+  tiles[idx].el.classList.add('playing');
+  audio.src=item.url;
+  const saved=parseFloat(localStorage.getItem('pos:'+item.url)||0);
+  const start=saved>20?saved:(item.skip||0);
+  if(start>0) audio.currentTime=start;
+  audio.play();
+  player.classList.add('on');
+  pEmoji.textContent=item.e;
+  pTitle.textContent=item.t+' · '+item.s;
+}
+document.getElementById('bclose').addEventListener('click',()=>{
+  bwrap.classList.remove('on'); bframe.src='about:blank';
+});
+audio.addEventListener('play',()=>{ pPlay.textContent='⏸'; });
+audio.addEventListener('pause',()=>{ pPlay.textContent='▶'; });
+audio.addEventListener('timeupdate',()=>{
+  if(!audio.duration) return;
+  fill.style.width=(100*audio.currentTime/audio.duration)+'%';
+  if(cur>=0) localStorage.setItem('pos:'+tiles[cur].item.url,audio.currentTime);
+});
+audio.addEventListener('ended',()=>{
+  if(cur>=0){ localStorage.removeItem('pos:'+tiles[cur].item.url); tiles[cur].el.classList.remove('playing'); }
+  cur=-1; player.classList.remove('on');
+});
+pPlay.addEventListener('click',()=>{ audio.paused?audio.play():audio.pause(); });
+bar.addEventListener('click',e=>{
+  if(!audio.duration) return;
+  const r=bar.getBoundingClientRect();
+  audio.currentTime=audio.duration*(e.clientX-r.left)/r.width;
+});
+</script>
+</body>
+</html>

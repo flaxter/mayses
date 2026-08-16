@@ -106,6 +106,7 @@
   <h1>מעשׂהלעך</h1>
   <div class="tagline">Yiddish stories for little ears · tap a picture to listen&nbsp;🎧</div>
   <button class="dice" id="dice" aria-label="Play a surprise story">🎲 a surprise!</button>
+  <a class="dice" style="text-decoration:none; color:inherit; display:inline-block; margin-inline-start:8px;" href="lakhn.html">😂 לאַכן איז געזונט</a>
 </header>
 <main id="main"></main>
 
@@ -221,13 +222,13 @@ async function play(idx) {
   cur = idx;
   const { sec, item, el } = tiles[idx];
 
-  if (item.ur && item.fmt === 'video') {
+  if (item.fmt === 'video') {
     el.classList.remove('playing');
     audio.pause();
-    const url = await urStream(item);
     vItem = item;
     vwrap.classList.add('on');
-    attachHls(video, url, false);
+    if (item.ur) { attachHls(video, await urStream(item), false); }
+    else { if (hlsV) { hlsV.destroy(); hlsV = null; } video.src = item.url; }
     const saved = parseFloat(localStorage.getItem(posKey(item)) || 0);
     if (saved > 10) video.currentTime = saved;
     video.play();
